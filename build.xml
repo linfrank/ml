@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+<project name="ML" default="build">
+
+	<!-- Load build properties -->
+	<property file="./build.properties"/>
+
+	<!-- Create classpath -->
+	<path id="classpath">
+		<pathelement location="${bin}"/>
+		<pathelement location="${rsc}"/>
+		<pathelement location="${conf}"/>
+		<fileset dir="${lib}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+
+	<!-- Initalization -->
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by build -->
+		<mkdir dir="${bin}"/>
+	</target>
+
+	<!-- Compile the java code from ${src} into ${bin} -->
+	<target name="build" depends="init" description="default build">
+		<javac source="1.6" srcdir="${src}" destdir="${bin}" verbose="${verbose}" debug="on" classpathref="classpath" deprecation="${deprecation}">
+			<compilerarg value="${Xlint}"/>
+		</javac>
+	</target>
+
+	<!-- Delete the ${bin} and other similar directory trees -->
+	<target name="clean" description="clean up">
+		<delete dir="${bin}"/>
+	</target>
+	
+	<!-- Make a jar-->
+	<target name="jar" depends="build">
+		<!-- Open jar files in lib -->
+		<mkdir dir="${dist}/temp"/>
+		<unjar dest="${dist}/temp">
+			<fileset dir="${lib}" includes="**/*.jar"/>
+		</unjar>
+		<!-- Merge jars into one jar file -->
+		<delete file="${dist}/ml.jar"/>
+		<jar jarfile="${dist}/ml.jar" basedir="${bin}" duplicate="fail">
+			<manifest>
+				<!--<attribute name="Main-Class" value="edu.cmu.cs.frank.timeline.GraphClusterST"/>-->
+				<!--<attribute name="Class-Path" value="lib/colt.jar lib/commons-collections-3.2.jar lib/concurrent.jar lib/dom4j-1.6.1.jar lib/jlibeps.jar lib/jung-1.7.6.jar lib/log4j-1.2.15.jar lib/lucene-core-2.3.2.jar lib/lucene-demos-2.3.2.jar lib/MozillaHtmlParser.jar lib/trove-2.0.1.jar lib/guess/forms.jar lib/guess/freehep-all.jar lib/guess/guess.jar lib/guess/hsqldb.jar lib/guess/jcommon.jar lib/guess/jfreechart.jar lib/guess/jide-common.jar lib/guess/jide-components.jar lib/guess/looks.jar lib/guess/mascoptLib.jar lib/guess/piccolo.jar lib/guess/piccolox.jar lib/guess/prefuse.jar lib/guess/TGGraphLayout.jar"/>-->
+			</manifest>
+			<fileset dir="${dist}/temp/" includes="**/*" excludes="META-INF/*"/>
+			<fileset dir="${rsc}" includes="**/*" excludes="**/.*"/>
+			<fileset dir="${conf}" includes="**/*" excludes="**/.*"/>
+		</jar>
+		<delete dir="${dist}/temp"/>
+	</target>
+	
+	<target name="jar-signed" depends="jar">
+		<delete file="${dist}/ml-signed.jar"/>
+		<signjar
+			jar="${dist}/ml.jar"
+			signedjar="${dist}/ml-signed.jar"
+			alias="ml"
+			keystore="${dist}/ml.keystore"
+	    storepass="ghc5507"/>
+	</target>
+
+</project>
