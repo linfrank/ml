@@ -1,0 +1,12 @@
+#!/bin/bash
+# -*-shell-*-
+
+CLASSPATH="./bin:./conf:./resources/:./lib/*:./lib/jung2/*"
+
+/usr/bin/java \
+ -server \
+ -classpath $CLASSPATH \
+ -d64 \
+ -Xmx10g \
+ -Dfile.encoding="utf-8" \
+ $*
